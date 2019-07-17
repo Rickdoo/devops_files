@@ -1,0 +1,45 @@
+Install java (install_java)
+
+---
+ - hosts: all
+   become: yes
+   tasks:
+     - name: Install Java
+       apt: name={{item}} state=latest
+       with_items:
+        - openjdk-8-jdk
+        
+        
+        install jenkins(installs_jenkins)
+
+---
+ - hosts: all
+   become: yes
+   tasks:
+     - name: Define jenkins_repo_url
+       set_fact:
+          jenkins_repo_url: "deb https://pkg.jenkins.io/debian binary/"
+       when: jenkins_repo_url is not defined
+
+     - name: Define jenkins_repo_key_url
+       set_fact:
+          jenkins_repo_key_url: "https://pkg.jenkins.io/debian/jenkins.io.key"
+       when: jenkins_repo_key_url is not defined
+
+     - name: Define jenkins_pkg_url
+       set_fact:
+          jenkins_pkg_url: "https://pkg.jenkins.io/debian/binary"
+       when: jenkins_pkg_url is not defined
+     - name: Ensure jenkins is installed
+       apt: name=jenkins update_cache=yes
+       become: yes
+     - name: Ensure jenkins is running
+       service: name=jenkins state=started
+
+
+
+
+
+
+
+
