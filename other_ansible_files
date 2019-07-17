@@ -1,0 +1,91 @@
+INSTALL NGINX USING ANSIBLE
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: install a nginx package
+    package: name=nginx state=latest
+  - name: start nginx service
+    service: name=nginx state=restarted
+
+
+SIMPLE EXAMPLE TO USE LOOP
+
+---
+
+- hosts: test-servers
+  become: yes
+
+  tasks:
+   - name: install stuff
+     apt: name={{ item }} update_cache=yes state=latest
+     with_items:
+      - vim
+      - nano
+      - apache2
+
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Doing iterations
+    debug: msg="This is a loop {{ item }}"
+    with_sequence: start=1 end=20
+
+
+---
+- hosts: all
+  become: yes
+  tasks: 
+  - name: Show file contents
+    debug: msg={{ item }}
+    with_file:
+     - file1.txt
+     - file2.txt
+
+
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: show some file contents
+    debug: msg={{ item }}
+    with_file:
+     - file1.txt
+     - file2.txt
+  - name: doing iterations
+    debug: msg="This is a loop{{ item }}"
+    with_sequence: start=1 end=2
+
+
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Install nginx
+    apt: name=nginx state=latest
+    register: results
+  - name: install apache2
+    apt: name=apache2 state=latest
+    when: results|success
+
+
+---
+- hosts: all
+  become: yes
+  tasks:
+     - name: create ec2 instance
+       ec2:
+         aws_access_key: AKIATQTB6FQHQZK76PS7
+         aws_secret_key: 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
+         image: ami-0c55b159cbfafe1f0 # ubuntu machine image
+         wait: yes
+         instance_type: t2.micro
+         region: us-east-2
+         group_id: sg-0004e580aba9c757e # default security group id
+         count: 1
+         vpc_subnet_id: subnet-28f45764 # subnet id
+         assign_public_ip: yes
+         instance_tags:
+            NAME: abc
+            ENV: dev
